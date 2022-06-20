@@ -1,18 +1,16 @@
 {
-  "name": "cordova-plugin-hello",
+  "name": "cordova-plugin-geolocalisation",
   "version": "0.1.0",
   "description": "A sample for a new cordova plugin",
   "cordova": {
-    "id": "cordova-plugin-hello",
+    "id": "cordova-plugin-geolocalisation",
     "platforms": [
-      "android",
-      "ios",
-      "wp7"
+      "android"
     ]
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/don/cordova-plugin-hello.git"
+    "url": "git+https://github.com/kinformatique/cordova-plugin-geolocalisation.git"
   },
   "keywords": [
     "cordova",
