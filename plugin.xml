@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-        id="com.example.plugin"
-        version="0.7.0">
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-plugin-geolocalisation" version="1.0.0">
 
   <name>GeolocalisationPlugin</name>
 
   <engines>
-    <engine name="cordova" version=">=3.4.0"/>
+    <engine name="cordova" version=">=9.0.0"/>
+    <engine name="cordova-android" version=">=9.0.0"/>
   </engines>
 
   <asset src="www/geolocalisationplugin.js" target="js/geolocalisationplugin.js"/>
 
   <js-module src="www/geolocalisationplugin.js" name="geolocalisationplugin">
-    <clobbers target="cordova.plugins.geolocalisationPlugin" />
+  <!-- Avec clobbers, on dit que GeolocalisationPlugin est accessible dans cordova.plugins.GeolocalisationPlugin pour le code TypeScript de l'appli.
+  Dans geolocalisation.js, dans cordova.exec, il faut également mettre GeolocalisationPlugin dans la fonction pour appeler le plugin -->
+    <clobbers target="cordova.plugins.GeolocalisationPlugin" />
   </js-module>
 
   <platform name="android">
-
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="GeolocalisationPlugin">
-      <!-- com.example.plugin.src.android.GeolocalisationPlugin -->
-        <param name="android-package" value="src.android.GeolocalisationPlugin"/>
+        <param name="android-package" value="com.example.plugin.GeolocalisationPlugin"/>
       </feature>
     </config-file>
+
     <config-file target="AndroidManifest.xml" parent="/*">
       <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
       <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -32,8 +32,14 @@
       <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     </config-file>
 
-    <source-file src="src/android/GeolocalisationPlugin.java" target-dir="src/android/example/plugin/"/>
-    <source-file src="src/android/GeolocalisationService.java" target-dir="src/com/example/plugin/"/>
+    <config-file target="AndroidManifest.xml" parent="application">
+      <service android:name="com.example.plugin.GeolocalisationService"></service>
+    </config-file>
+
+
+    <source-file src="src/android/GeolocalisationPlugin.java" target-dir="src/com/example/plugin"/>
+    <source-file src="src/android/GeolocalisationService.java" target-dir="src/com/example/plugin" />
+    <framework src="src/android/dependencies.gradle" custom="true" type="gradleReference" />
 
   </platform>
 

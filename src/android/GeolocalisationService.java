@@ -98,6 +98,8 @@ public class GeolocalisationService extends Service implements LocationListener 
     // ************************************* FONCTION DECLENCHEE AU DEMARRAGE DU SERVICE
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        System.out.println("******************************************************************************************************************* START");
+
         // Autorisations de sécurité, sinon crash
         if (android.os.Build.VERSION.SDK_INT > 9){
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -108,13 +110,13 @@ public class GeolocalisationService extends Service implements LocationListener 
 
         // On créé la notification
         String input = intent.getStringExtra("inputExtra");
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, GeolocalisationPlugin.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,0, notificationIntent, 0);
         this.createNotificationChannel();
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("KALICO LIV")
                 .setContentText(input)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+            //    .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
                 .build();
 
@@ -129,6 +131,8 @@ public class GeolocalisationService extends Service implements LocationListener 
                 intent.getStringExtra("version"),
                 intent.getStringExtra("url")
         );
+        System.out.println("******************************************************************************************************************* FIN START");
+
         return START_NOT_STICKY;
     }
 
