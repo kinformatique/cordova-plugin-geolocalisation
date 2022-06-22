@@ -85,6 +85,16 @@ public class GeolocalisationService extends Service implements LocationListener 
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+    @Override
+    public void onProviderEnabled(@NonNull String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(@NonNull String provider) {
+
+    }
     // *************************************
 
 
