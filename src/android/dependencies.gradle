@@ -1,12 +1,4 @@
 
-android {
-    ndkPath "C:\\Users\\Javierre\\AppData\\Local\\Android\\Sdk\\ndk\\25.0.8528842"  // Point to your own NDK
-    externalNativeBuild {
-        cmake {
-            version "33.0.0"
-        }
-    }
-}
 
 
 dependencies {

@@ -36,7 +36,6 @@
       <service android:name="com.example.plugin.GeolocalisationService"></service>
     </config-file>
 
-
     <source-file src="src/android/GeolocalisationPlugin.java" target-dir="src/com/example/plugin"/>
     <source-file src="src/android/GeolocalisationService.java" target-dir="src/com/example/plugin" />
     <framework src="src/android/dependencies.gradle" custom="true" type="gradleReference" />
