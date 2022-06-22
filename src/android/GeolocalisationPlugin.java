@@ -31,9 +31,9 @@ public class GeolocalisationPlugin extends CordovaPlugin {
 
             callbackContext.success("Geolocalisation demarree");
             return true;
+
         } else if (action.equals("arreter")) {
-            Intent serviceIntent = new Intent(this.context, GeolocalisationService.class);
-          //  stopService(serviceIntent);
+            this.arreterService();
             callbackContext.success("Geolocalisation arretee");
             return true;
         } else {
@@ -57,6 +57,7 @@ public class GeolocalisationPlugin extends CordovaPlugin {
     private void demarrerService() {
         try {
             Intent serviceIntent = new Intent(this.context, GeolocalisationService.class);
+            serviceIntent.putExtra("action", "demarrer");
             serviceIntent.putExtra("parametrage", this.data.getString(0));
             serviceIntent.putExtra("utilisateur", this.data.getString(1));
             serviceIntent.putExtra("cleApi", this.data.getString(2));
@@ -66,6 +67,12 @@ public class GeolocalisationPlugin extends CordovaPlugin {
         } catch (JSONException e){
 
         }
+    }
+
+    private void arreterService() {
+        Intent serviceIntent = new Intent(this.context, GeolocalisationService.class);
+        serviceIntent.putExtra("action", "arreter");
+        this.context.startService(serviceIntent);
     }
 
     private boolean permissionsAccordees(){

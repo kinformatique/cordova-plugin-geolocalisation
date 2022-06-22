@@ -105,31 +105,39 @@ public class GeolocalisationService extends Service implements LocationListener 
             StrictMode.setThreadPolicy(policy);
         }
 
-        this.locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        String action = intent.getStringExtra("action");
+        if(action.equals("demarrer")){
+            this.locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        // On créé la notification
-        String input = intent.getStringExtra("inputExtra");
-        Intent notificationIntent = new Intent(this, GeolocalisationPlugin.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-        this.createNotificationChannel();
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("KALICO LIV")
-                .setContentText(input)
-           //     .setSmallIcon(R.drawable.ic_launcher)
-                .setContentIntent(pendingIntent)
-                .build();
+            // On créé la notification
+            String input = intent.getStringExtra("inputExtra");
+            Intent notificationIntent = new Intent(this, GeolocalisationPlugin.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+            this.createNotificationChannel();
+            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("KALICO LIV")
+                    .setContentText(input)
+                    //     .setSmallIcon(R.drawable.ic_launcher)
+                    .setContentIntent(pendingIntent)
+                    .build();
 
-        // On lance le service en arrière plan
-        startForeground(1, notification);
+            // On lance le service en arrière plan
+            startForeground(1, notification);
 
 
-        this.demarrerGeolocalisation(
-                intent.getStringExtra("parametrage"),
-                intent.getStringExtra("utilisateur"),
-                intent.getStringExtra("cleApi"),
-                intent.getStringExtra("version"),
-                intent.getStringExtra("url")
-        );
+            this.demarrerGeolocalisation(
+                    intent.getStringExtra("parametrage"),
+                    intent.getStringExtra("utilisateur"),
+                    intent.getStringExtra("cleApi"),
+                    intent.getStringExtra("version"),
+                    intent.getStringExtra("url")
+            );
+
+        } else if(action.equals("arreter")){
+            this.arreterGeolocalisation();
+        }
+
+
 
         return START_NOT_STICKY;
     }
@@ -200,6 +208,11 @@ public class GeolocalisationService extends Service implements LocationListener 
                 this.configurationGeolocalisationService.intervalleDistance,
                 this
         );
+    }
+
+    private void arreterGeolocalisation() {
+        stopForeground(true);
+        stopSelf();
     }
 
 
