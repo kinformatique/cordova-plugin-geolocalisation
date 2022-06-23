@@ -134,7 +134,6 @@ public class GeolocalisationService extends Service implements LocationListener 
             // On lance le service en arrière plan
             startForeground(1, notification);
 
-
             this.demarrerGeolocalisation(
                     intent.getStringExtra("parametrage"),
                     intent.getStringExtra("utilisateur"),
@@ -299,7 +298,7 @@ public class GeolocalisationService extends Service implements LocationListener 
         }
     }
 
-    private HttpsURLConnection creerConnexion() throws IOException{
+    private HttpsURLConnection creerConnexion() throws IOException {
         // On créé la connexion
         URL url = new URL(this.configurationGeolocalisationService.url);
         HttpsURLConnection connexion = (HttpsURLConnection) url.openConnection();
