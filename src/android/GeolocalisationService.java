@@ -220,6 +220,8 @@ public class GeolocalisationService extends Service implements LocationListener 
     }
 
     private void arreterGeolocalisation() {
+        // On appelle l'envoi au cas où on n'avait pas réussi à ré envoyé la dernière fois
+        this.envoyerPositionGPS(null);
         stopForeground(true);
         stopSelf();
     }
@@ -270,7 +272,10 @@ public class GeolocalisationService extends Service implements LocationListener 
             if(listeEnregistrementPositionGPS == null){
                 listeEnregistrementPositionGPS = new ArrayList<>();
             }
-            listeEnregistrementPositionGPS.add(enregistrementPositionGPS);
+
+            if(enregistrementPositionGPS != null){
+                listeEnregistrementPositionGPS.add(enregistrementPositionGPS);
+            }
 
             // On formatte les enregistrements en JSON puis en tableau de byte
             String jsonAEnvoyer = gson.toJson(listeEnregistrementPositionGPS);
