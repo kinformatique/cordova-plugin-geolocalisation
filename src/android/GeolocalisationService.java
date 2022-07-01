@@ -8,7 +8,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -25,6 +24,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 
 import java.io.File;
 import java.io.FileReader;
@@ -59,7 +59,6 @@ public class GeolocalisationService extends Service implements LocationListener 
 
     private ConfigurationGeolocalisationService configurationGeolocalisationService = null;
     private LocationManager locationManager;
-    private Criteria criteres = new Criteria();
 
 
     // ************************************* FONCTIONS OVERRIDE INUTILES
@@ -96,8 +95,6 @@ public class GeolocalisationService extends Service implements LocationListener 
 
     }
     // *************************************
-
-
 
 
     // ************************************* FONCTION DECLENCHEE QUAND ON DETECTE UNE NOUVELLE POSITION
@@ -165,15 +162,10 @@ public class GeolocalisationService extends Service implements LocationListener 
         }
     }
 
-
-
-
     private void configurerGeolocalisation(String parametrage, String utilisateur, String cleApi, String version, String url) {
         switch (parametrage) {
             case PARAMETRAGE_LE_PLUS_PRECIS :
                 this.configurationGeolocalisationService = new ConfigurationGeolocalisationService(
-                        Criteria.POWER_HIGH,
-                        Criteria.ACCURACY_FINE,
                         60000, // Une minute
                         200, // 200 mètres
                         utilisateur,
@@ -185,8 +177,6 @@ public class GeolocalisationService extends Service implements LocationListener 
 
             case PARAMETRAGE_ECONOMIE_ENERGIE :
                 this.configurationGeolocalisationService = new ConfigurationGeolocalisationService(
-                        Criteria.POWER_LOW,
-                        Criteria.ACCURACY_COARSE,
                         600000, // Dix minutes
                         10000, // 10 kilomètres
                         utilisateur,
@@ -199,28 +189,23 @@ public class GeolocalisationService extends Service implements LocationListener 
             default:
                 break;
         }
-
-        this.criteres.setPowerRequirement(this.configurationGeolocalisationService.consommation);
-        this.criteres.setAccuracy(this.configurationGeolocalisationService.precision);
-        this.criteres.setAltitudeRequired(false);
-        this.criteres.setBearingRequired(false);
-        this.criteres.setSpeedRequired(false);
     }
 
     @SuppressLint("MissingPermission")
     private void demarrerGeolocalisation(String parametrage, String utilisateur, String cleApi, String version, String url) {
         this.configurerGeolocalisation(parametrage, utilisateur, cleApi, version, url);
-        String fournisseur = this.locationManager.getBestProvider(this.criteres, true);
         this.locationManager.requestLocationUpdates(
-                fournisseur,
-                this.configurationGeolocalisationService.intervalleTemps,
-                this.configurationGeolocalisationService.intervalleDistance,
+                LocationManager.GPS_PROVIDER,
+              //  5000,
+              //  10,
+                 this.configurationGeolocalisationService.intervalleTemps,
+                 this.configurationGeolocalisationService.intervalleDistance,
                 this
         );
     }
 
     private void arreterGeolocalisation() {
-        // On appelle l'envoi au cas où on n'avait pas réussi à ré envoyé la dernière fois
+        // On appelle l'envoi au cas où on n'avait pas réussi à re envoyé la dernière fois
         this.envoyerPositionGPS(null);
         stopForeground(true);
         stopSelf();
@@ -265,6 +250,7 @@ public class GeolocalisationService extends Service implements LocationListener 
 
     private void envoyerPositionGPS(EnregistrementPositionGPS enregistrementPositionGPS) {
         try {
+
             // On lit le fichier json pour récupérer les enregistrements précédents qui ne se sont pas envoyés
             Gson gson = new Gson();
             Type listType = new TypeToken<ArrayList<EnregistrementPositionGPS>>(){}.getType();
@@ -351,8 +337,6 @@ class EnregistrementPositionGPS implements Serializable {
 }
 
 class ConfigurationGeolocalisationService {
-    public int consommation;
-    public int precision;
     public int intervalleTemps;
     public int intervalleDistance;
     public String utilisateur;
@@ -360,11 +344,7 @@ class ConfigurationGeolocalisationService {
     public String version;
     public String url;
 
-    public ConfigurationGeolocalisationService(int consommation, int precision, int intervalleTemps, int intervalleDistance, String utilisateur,
-                                               String cleApi, String version, String url) {
-
-        this.consommation = consommation;
-        this.precision = precision;
+    public ConfigurationGeolocalisationService(int intervalleTemps, int intervalleDistance, String utilisateur, String cleApi, String version, String url) {
         this.intervalleTemps = intervalleTemps;
         this.intervalleDistance = intervalleDistance;
         this.utilisateur = utilisateur;
