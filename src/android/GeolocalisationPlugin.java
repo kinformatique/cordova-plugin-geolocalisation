@@ -19,42 +19,49 @@ public class GeolocalisationPlugin extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) {
+
         this.context = this.cordova.getActivity().getApplicationContext();
         this.data = data;
 
         if (action.equals("demarrer")) {
-            if(!this.permissionsAccordees()){
+            if (!this.permissionsAccordees()) {
                 this.demanderPermissions();
-            } else {
+            } 
+            else {
                 this.demarrerService();
             }
 
             callbackContext.success("Geolocalisation demarree");
             return true;
-
-        } else if (action.equals("arreter")) {
+        } 
+        else if (action.equals("arreter")) {
             this.arreterService();
             callbackContext.success("Geolocalisation arretee");
             return true;
-        } else {
+        } 
+        else {
             return false;
         }
+
     }
 
     public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) {
+
         boolean permissionsOK = true;
-        for(int r:grantResults){
-            if(r == PackageManager.PERMISSION_DENIED){
+        for (int r:grantResults) {
+            if (r == PackageManager.PERMISSION_DENIED) {
                 permissionsOK = false;
             }
         }
 
-        if(permissionsOK){
+        if (permissionsOK) {
             this.demarrerService();
         }
+
     }
 
     private void demarrerService() {
+
         try {
             Intent serviceIntent = new Intent(this.context, GeolocalisationService.class);
             serviceIntent.putExtra("action", "demarrer");
@@ -64,9 +71,9 @@ public class GeolocalisationPlugin extends CordovaPlugin {
             serviceIntent.putExtra("version", this.data.getString(3));
             serviceIntent.putExtra("url", this.data.getString(4));
             ContextCompat.startForegroundService(this.context, serviceIntent);
-        } catch (JSONException e){
+        } 
+        catch (JSONException e) {}
 
-        }
     }
 
     private void arreterService() {
@@ -75,19 +82,19 @@ public class GeolocalisationPlugin extends CordovaPlugin {
         this.context.startService(serviceIntent);
     }
 
-    private boolean permissionsAccordees(){
+    private boolean permissionsAccordees() {
         return cordova.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
-                && cordova.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                && cordova.hasPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                && cordova.hasPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE);
+            && cordova.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+            && cordova.hasPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            && cordova.hasPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE);
     }
 
-    private void demanderPermissions(){
+    private void demanderPermissions() {
         String [] permissions = {
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
         };
 
         cordova.requestPermissions(this, 1, permissions);

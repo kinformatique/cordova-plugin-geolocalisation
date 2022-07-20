@@ -1,7 +1,7 @@
 {
   "name": "cordova-plugin-geolocalisation",
   "version": "0.1.0",
-  "description": "A sample for a new cordova plugin",
+  "description": "Plug-in de géolocalisation Cordova",
   "cordova": {
     "id": "cordova-plugin-geolocalisation",
     "platforms": [
@@ -19,10 +19,10 @@
     "ecosystem:cordova",
     "cordova-android"
   ],
-  "author": "Don Coleman",
+  "author": "Kalico Informatique",
   "license": "Apache-2",
   "bugs": {
-    "url": "https://github.com/don/cordova-plugin-hello/issues"
+    "url": "https://github.com/kinformatique/cordova-plugin-geolocalisation/issues"
   },
-  "homepage": "https://github.com/don/cordova-plugin-hello#readme"
+  "homepage": "https://github.com/kinformatique/cordova-plugin-geolocalisation#readme"
 }
