@@ -45,6 +45,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
+/* Test Antoine pour Git */
 public class GeolocalisationService extends Service implements LocationListener {
 
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
