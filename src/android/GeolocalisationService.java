@@ -44,7 +44,6 @@ import java.util.TimeZone;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
-
 public class GeolocalisationService extends Service implements LocationListener {
 
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
@@ -58,7 +57,8 @@ public class GeolocalisationService extends Service implements LocationListener 
 
     private ConfigurationGeolocalisationService configurationGeolocalisationService = null;
     private LocationManager locationManager;
-
+    private File fichierLog;
+    private boolean modeDebug = false;
 
     // **** FONCTIONS OVERRIDE INUTILES ****
 
@@ -90,18 +90,44 @@ public class GeolocalisationService extends Service implements LocationListener 
     // **** FONCTION DECLENCHEE QUAND ON DETECTE UNE NOUVELLE POSITION ****
     @Override
     public void onLocationChanged(@NonNull Location location) {
-        this.envoyerPositionGPS(new EnregistrementPositionGPS(location.getLatitude(), location.getLongitude()));
+    	
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                envoyerPositionGPS(new EnregistrementPositionGPS(location.getLatitude(), location.getLongitude()));
+            }
+        }).start();
+    
     }
 
     // **** FONCTION DECLENCHEE AU DEMARRAGE DU SERVICE ****
-    @Override
+  @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         // Autorisations de sécurité, sinon crash
         if (android.os.Build.VERSION.SDK_INT > 9) { 
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
+        
+        if(this.modeDebug) {
+        	// Créer le fichier de journal dans le répertoire "Download"
+        	File dossierDownload = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        	this.fichierLog = new File(dossierDownload, "log.txt");
+        	
+        	try {
+        		// Créer le fichier s'il n'existe pas
+        		if (!fichierLog.exists()) {
+        			fichierLog.createNewFile();
+        		} else {
+        			// Effacer le contenu du fichier s'il existe
+        			FileWriter fileWriter = new FileWriter(fichierLog, false);
+        			fileWriter.close();
+        		}
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        	}
+        }
+        enregistrerHeureDebutFin("Debut onStartCommand(Intent intent, int flags, int startId)", true);
 
         String action = intent.getStringExtra("action");
         if (action.equals("demarrer")) {
@@ -135,12 +161,27 @@ public class GeolocalisationService extends Service implements LocationListener 
             this.arreterGeolocalisation();
         }
 
+        this.enregistrerHeureDebutFin("Fin onStartCommand(Intent intent, int flags, int startId)", false);
         return START_NOT_STICKY;
+    }
+
+    // Enregistrer l'heure de début ou de fin dans un fichier texte
+    private void enregistrerHeureDebutFin(String fonction, boolean debut) {
+    	if(this.modeDebug) {
+    		String message = fonction + " - " + (debut ? "Debut" : "Fin") + " : " + getCurrentTime() + "\n";
+    		writeToFile(this.fichierLog, message);    		
+    	}
+    }
+
+    // Obtenir l'heure actuelle au format "yyyy-MM-dd HH:mm:ss"
+    private String getCurrentTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(new Date());
     }
 
     // **** FONCTION POUR PARAMETRER LA NOTIFICATION ****
     private void createNotificationChannel() {
-
+        this.enregistrerHeureDebutFin("Debut createNotiticationChannel", true);
         // On créé la notification qui apparaît quand le service tourne en arrière plan
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -154,15 +195,16 @@ public class GeolocalisationService extends Service implements LocationListener 
             manager.createNotificationChannel(serviceChannel);
 
         }
-
+        this.enregistrerHeureDebutFin("Fin createNotiticationChannel", false);
     }
 
     private void configurerGeolocalisation(String parametrage, String utilisateur, String cleApi, String version, String url) {
+        this.enregistrerHeureDebutFin("Debut configurerGeolocalisation(String parametrage, String utilisateur, String cleApi, String version, String url)", true);
         switch (parametrage) {
 
             case PARAMETRAGE_LE_PLUS_PRECIS :
                 this.configurationGeolocalisationService = new ConfigurationGeolocalisationService(
-                        60000, // Une minute
+                        60000, // 1 minute
                         200, // 200 mètres
                         utilisateur,
                         cleApi,
@@ -185,10 +227,12 @@ public class GeolocalisationService extends Service implements LocationListener 
             default:
                 break;
         }
+        this.enregistrerHeureDebutFin("Fin configurerGeolocalisation(String parametrage, String utilisateur, String cleApi, String version, String url)", false);
     }
 
     @SuppressLint("MissingPermission")
     private void demarrerGeolocalisation(String parametrage, String utilisateur, String cleApi, String version, String url) {
+    this.enregistrerHeureDebutFin("Debut demarrerGeolocalisation(String parametrage, String utilisateur, String cleApi, String version, String url)", true);
 
         this.configurerGeolocalisation(parametrage, utilisateur, cleApi, version, url);
         this.locationManager.requestLocationUpdates(
@@ -198,19 +242,23 @@ public class GeolocalisationService extends Service implements LocationListener 
             this
         );
 
+    this.enregistrerHeureDebutFin("Fin demarrerGeolocalisation(String parametrage, String utilisateur, String cleApi, String version, String url)", false);
     }
 
     private void arreterGeolocalisation() {
+        this.enregistrerHeureDebutFin("Debut arreterGeolocalisation()", true);
+
         // On appelle l'envoi au cas où on n'avait pas réussi à re envoyé la dernière fois
         this.envoyerPositionGPS(null);
         stopForeground(true);
         stopSelf();
+        this.enregistrerHeureDebutFin("Fin arreterGeolocalisation()", false);
     }
 
 
     // **** FONCTIONS POUR LE TRAITEMENT DE LA GEOLOCALISATION ****
     private void ecrireFichierJson(String json) {
-
+        this.enregistrerHeureDebutFin("Debut ecrireFichierJson(String json)", true);
         try {
             File dossierDownload = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             File fichierJson = new File(dossierDownload.getAbsolutePath() + FICHIER_JSON);
@@ -224,13 +272,15 @@ public class GeolocalisationService extends Service implements LocationListener 
             writer.write(json);
             writer.close();
         }
-        catch (IOException e) {}
-
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.enregistrerHeureDebutFin("Fin ecrireFichierJson(String json)", false);
     }
 
     private String lireFichierJson() {
-
         try {
+        this.enregistrerHeureDebutFin("Debut lireFichierJson()", true);
             File dossierDownload = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             File fichierJson = new File(dossierDownload.getAbsolutePath() + FICHIER_JSON);
 
@@ -239,20 +289,22 @@ public class GeolocalisationService extends Service implements LocationListener 
                 char[] charBuffer = new char[(int) fichierJson.length()];
                 reader.read(charBuffer);
                 reader.close();
+                this.enregistrerHeureDebutFin("Fin lireFichierJson()", false);
                 return new String(charBuffer);
             }
             else {
+                this.enregistrerHeureDebutFin("Fin lireFichierJson()", false);
                 return "";
             }
-
         }
         catch (IOException e) { 
+            this.enregistrerHeureDebutFin("Fin lireFichierJson()", false);
             return ""; 
         }
     }
 
     private void envoyerPositionGPS(EnregistrementPositionGPS enregistrementPositionGPS) {
-
+        this.enregistrerHeureDebutFin("Debut envoyerPositionGPS(EnregistrementPositionGPS enregistrementPositionGPS)", true);
         try {
 
             // On lit le fichier json pour récupérer les enregistrements précédents qui ne se sont pas envoyés
@@ -272,7 +324,7 @@ public class GeolocalisationService extends Service implements LocationListener 
             byte[] byteArray = jsonAEnvoyer.getBytes("utf-8");
 
             HttpsURLConnection connexion = this.creerConnexion();
-
+            
             // On envoie
             try (OutputStream os = connexion.getOutputStream()) {
                 os.write(byteArray);
@@ -294,17 +346,31 @@ public class GeolocalisationService extends Service implements LocationListener 
             }
 
         }
-        catch (IOException e) {}
+        catch (Exception e) {}
+        this.enregistrerHeureDebutFin("Fin envoyerPositionGPS(EnregistrementPositionGPS enregistrementPositionGPS)", false);
+    }
 
+    private void writeToFile(File file, String data) {
+        try {
+            FileWriter writer = new FileWriter(file, true); // Le paramètre true permet d'ajouter au fichier existant
+            writer.append(data);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private HttpsURLConnection creerConnexion() throws IOException {
+        this.enregistrerHeureDebutFin("Debut creerConnexion()", true);
 
         // On créé la connexion
         URL url = new URL(this.configurationGeolocalisationService.url);
         HttpsURLConnection connexion = (HttpsURLConnection) url.openConnection();
         connexion.setDoOutput(true);
         connexion.setRequestMethod("POST");
+        connexion.setConnectTimeout(30000); //timeOut 30 secondes
+
 
         // On créé le header
         connexion.setRequestProperty(HEADER_UTILISATEUR, this.configurationGeolocalisationService.utilisateur);
@@ -321,6 +387,7 @@ public class GeolocalisationService extends Service implements LocationListener 
             public boolean verify(String arg0, SSLSession arg1) { return true; }
             
         });
+        this.enregistrerHeureDebutFin("Fin creerConnexion()", false);
 
         return connexion;
     }
