@@ -33,6 +33,7 @@
       <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     </config-file>
 
+
     <config-file target="AndroidManifest.xml" parent="application">
       <service android:name="com.example.plugin.GeolocalisationService"></service>
     </config-file>
